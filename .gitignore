@@ -1,0 +1,7 @@
+build/**
+install/**
+build_msvc/**
+build_gcc/**
+build_clang/**
+session.vim
+
