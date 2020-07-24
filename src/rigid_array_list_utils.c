@@ -1,4 +1,4 @@
-#include "./rigid_array_list_utils.h"
+#include "./rigid_list_utils.h"
 
 #include <string.h>
 
