@@ -1,4 +1,4 @@
-#include "src/rigid_list_utils.h"
+#include "src/rigid_list_internal.h"
 
 #include <unity.h>
 
@@ -63,7 +63,7 @@ void test_List_ShiftElements_CorrectlyShiftsMoreThanOneELement(void)
     int values[LIST_SIZE] = { 10, 12, 14, 16 };
 
     for (int i = 0; i < LIST_SIZE; ++i) {
-        *(int*)rg_List_GetIndex(list, i) = values[i];
+        *(int*)rg_List_Get(list, i) = values[i];
     }
 
     /* Move the first three elements to be the last three. */
@@ -77,7 +77,7 @@ void test_List_ShiftElements_CorrectlyShiftsMoreThanOneELement(void)
     for (int i = 0; i < LIST_SIZE - 1; ++i) {
         TEST_ASSERT_EQUAL_INT(
                 values[i],
-                *(int*)rg_List_GetIndex(list, i + 1)
+                *(int*)rg_List_Get(list, i + 1)
         );
     }
 

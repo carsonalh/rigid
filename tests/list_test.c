@@ -4,6 +4,7 @@
 
 #include <limits.h>
 #include <stdio.h>
+#include <string.h>
 
 void setUp(void) {}
 void tearDown(void) {}
@@ -77,14 +78,14 @@ void test_List_Create_NumAllocatedElementsIsNeverZero(void)
 void test_List_GetIndex_DoesNotReturnNullForIndexZero(void)
 {
     struct rg_List *list = rg_List_Create(sizeof(int), 1);
-    int *first_item_in_list = rg_List_GetIndex(list, 0);
+    int *first_item_in_list = rg_List_Get(list, 0);
     TEST_ASSERT_NOT_NULL(first_item_in_list);
 }
 
 void test_List_GetIndex_ReturnsPointerToDataInStructForIndexZero(void)
 {
     struct rg_List *list = rg_List_Create(sizeof(int), 1);
-    int *first_item_in_list = rg_List_GetIndex(list, 0);
+    int *first_item_in_list = rg_List_Get(list, 0);
     TEST_ASSERT_EQUAL_PTR(&list->_data[0], first_item_in_list);
 }
 
@@ -95,10 +96,10 @@ void test_List_GetIndex_ReturnsPointerToItemInStructForAnyIndex(void)
                 rg_List_Create(sizeof(int32_t), 100);
         int32_t *item;
 
-        item = rg_List_GetIndex(list, 1);
+        item = rg_List_Get(list, 1);
         TEST_ASSERT_EQUAL_PTR(&list->_data[1 * sizeof *item], item);
 
-        item = rg_List_GetIndex(list, 12);
+        item = rg_List_Get(list, 12);
         TEST_ASSERT_EQUAL_PTR(&list->_data[12 * sizeof *item], item);
 
         rg_List_Destroy(list);
@@ -109,10 +110,10 @@ void test_List_GetIndex_ReturnsPointerToItemInStructForAnyIndex(void)
                 rg_List_Create(sizeof(int8_t), 100);
         int8_t *item;
 
-        item = rg_List_GetIndex(list, 1);
+        item = rg_List_Get(list, 1);
         TEST_ASSERT_EQUAL_PTR(&list->_data[1 * sizeof *item], item);
 
-        item = rg_List_GetIndex(list, 33);
+        item = rg_List_Get(list, 33);
         TEST_ASSERT_EQUAL_PTR(&list->_data[33 * sizeof *item], item);
 
         rg_List_Destroy(list);
@@ -124,10 +125,10 @@ void test_List_GetIndex_ReturnsNullForInvalidIndices(void)
     struct rg_List *list = rg_List_Create(sizeof(int), 10);
     int *item;
 
-    item = rg_List_GetIndex(list, 10);
+    item = rg_List_Get(list, 10);
     TEST_ASSERT_NULL(item);
 
-    item = rg_List_GetIndex(list, UINT_MAX);
+    item = rg_List_Get(list, UINT_MAX);
     TEST_ASSERT_NULL(item);
 }
 
@@ -204,10 +205,143 @@ void test_List_Insert_ShiftsTrailingElementsForwards(void)
     for (int i = 1; i <= VALUES_SIZE; ++i) {
         TEST_ASSERT_EQUAL_INT(
                 values[i - 1],
-                *(int*)rg_List_GetIndex(list, i)
+                *(int*)rg_List_Get(list, i)
         );
     }
 #undef VALUES_SIZE
+}
+
+void test_List_Delete_DecrementsListSize(void)
+{
+    struct rg_List *list;
+
+#define LIST_SIZE 3
+    
+    list = rg_List_Create(sizeof(int), LIST_SIZE);
+
+    rg_List_Delete(list, 0);
+    TEST_ASSERT_EQUAL_INT(LIST_SIZE - 1, list->_list_length);
+
+    rg_List_Destroy(list);
+
+#undef LIST_SIZE
+#define LIST_SIZE 5
+
+    list = rg_List_Create(sizeof(int), LIST_SIZE);
+
+    rg_List_Delete(list, 0);
+    TEST_ASSERT_EQUAL_INT(LIST_SIZE - 1, list->_list_length);
+
+    rg_List_Destroy(list);
+
+#undef LIST_SIZE
+}
+
+void test_List_Delete_ShiftsNextElementBackByOne(void)
+{
+    struct rg_List *list;
+
+#define LIST_SIZE 4
+
+    list = rg_List_Create(sizeof(int), LIST_SIZE);
+
+    {
+        int values[LIST_SIZE] = { 1, 2, 3, 4 };
+        memcpy(list->_data, values, sizeof values);
+
+        rg_List_Delete(list, 0);
+
+        TEST_ASSERT_EQUAL_INT(2, *(int*)rg_List_Get(list, 0));
+    }
+
+    {
+        int values[LIST_SIZE] = { 10, 12, 14 };
+        memcpy(list->_data, values, sizeof values);
+
+        rg_List_Delete(list, 1);
+
+        TEST_ASSERT_EQUAL_INT(14, *(int*)rg_List_Get(list, 1));
+    }
+
+    {
+        rg_List_Destroy(list);
+        list = rg_List_Create(sizeof(int8_t), LIST_SIZE);
+
+        int8_t values[LIST_SIZE] = { 100, 90, 80, 70 };
+        memcpy(list->_data, values, sizeof values);
+
+        rg_List_Delete(list, 1);
+
+        TEST_ASSERT_EQUAL_INT8(80, *(int8_t*)rg_List_Get(list, 1));
+    }
+
+    rg_List_Destroy(list);
+
+#undef LIST_SIZE
+}
+
+void test_List_Delete_DeletingLastElementDoesNotModifyContents(void)
+{
+#define LIST_SIZE 5
+
+    struct rg_List *list = rg_List_Create(sizeof(int16_t), LIST_SIZE);
+
+    int16_t values[LIST_SIZE] = { 5, 4, 3, 2, 1 };
+    memcpy(list->_data, values, sizeof values);
+
+    rg_List_Delete(list, LIST_SIZE - 1);
+
+    for (int i = 0; i < LIST_SIZE - 1; ++i) {
+        TEST_ASSERT_EQUAL_INT16(values[i], *(int16_t*)rg_List_Get(list, i));
+    }
+
+#undef LIST_SIZE
+}
+
+void test_List_Delete_ShiftsAllTrailingElementsBackByOne(void)
+{
+#define LIST_SIZE 5
+
+    int16_t values[LIST_SIZE] = { 2, 4, 6, 8, 10 };
+    struct rg_List *list = rg_List_Create(sizeof(int16_t), LIST_SIZE);
+
+    memcpy(list->_data, values, sizeof values);
+
+    rg_List_Delete(list, 2);
+    int16_t expected_values[LIST_SIZE - 1] = { 2, 4, 8, 10 };
+
+    TEST_ASSERT_EQUAL_INT16_ARRAY(expected_values, list->_data, LIST_SIZE - 1);
+
+    rg_List_Destroy(list);
+
+#undef LIST_SIZE
+}
+
+void test_List_Delete_ReturnsTrueForListWithElements(void)
+{
+#define LIST_SIZE 5
+
+    int32_t values[LIST_SIZE] = { 0, 0, 0, 0, 0 };
+    struct rg_List *list = rg_List_Create(sizeof(int32_t), LIST_SIZE);
+
+    memcpy(list->_data, values, sizeof values);
+
+    for (int i = 0; i < LIST_SIZE; ++i) {
+        bool status;
+        status = rg_List_Delete(list, 0);
+        TEST_ASSERT_TRUE(status);
+    }
+
+#undef LIST_SIZE
+}
+
+void test_List_Delete_ReturnsFalseForListWithNoElements(void)
+{
+    struct rg_List *list = rg_List_Create(sizeof(int), 0);
+
+    bool status;
+    status = rg_List_Delete(list, 0);
+    TEST_ASSERT_FALSE(status);
 }
 
 int main(void)
@@ -230,6 +364,13 @@ int main(void)
     RUN_TEST(test_List_Insert_GrowsMemoryIfNoSpaceLeft);
     RUN_TEST(test_List_Insert_OverwritesOldElements);
     RUN_TEST(test_List_Insert_ShiftsTrailingElementsForwards);
+
+    RUN_TEST(test_List_Delete_DecrementsListSize);
+    RUN_TEST(test_List_Delete_ShiftsNextElementBackByOne);
+    RUN_TEST(test_List_Delete_DeletingLastElementDoesNotModifyContents);
+    RUN_TEST(test_List_Delete_ShiftsAllTrailingElementsBackByOne);
+    RUN_TEST(test_List_Delete_ReturnsTrueForListWithElements);
+    RUN_TEST(test_List_Delete_ReturnsFalseForListWithNoElements);
 
     return UNITY_END();
 }
