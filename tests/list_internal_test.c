@@ -1,13 +1,13 @@
 #include "src/rigid_list_internal.h"
 
-#include <unity.h>
+#include <pest.h>
 
 #include <string.h>
 
 void setUp(void) {}
 void tearDown(void) {}
 
-void test_List_ShiftElements_CorrectlyShiftsOneElement(void)
+TEST(list_ShiftElements_CorrectlyShiftsOneElement)
 {
     struct rg_List *list = rg_List_Create(sizeof(int), 0);
 
@@ -25,7 +25,7 @@ void test_List_ShiftElements_CorrectlyShiftsOneElement(void)
     /* At this point our list should be { 1, 2, 3 } . */
     _rg_List_ShiftElements(list, 0, 1, 1);
 
-    TEST_ASSERT_EQUAL_INT(1, *(int*)&list->_data[1 * sizeof(int)]);
+    ASSERT_EQUAL_INT(1, *(int*)&list->_data[1 * sizeof(int)]);
 
     rg_List_Clear(list);
 
@@ -49,12 +49,12 @@ void test_List_ShiftElements_CorrectlyShiftsOneElement(void)
 
     _rg_List_ShiftElements(list, 1, 1, 1);
 
-    TEST_ASSERT_EQUAL_INT(2, *(int*)&list->_data[2 * sizeof(int)]);
+    ASSERT_EQUAL_INT(2, *(int*)&list->_data[2 * sizeof(int)]);
 
     rg_List_Destroy(list);
 }
 
-void test_List_ShiftElements_CorrectlyShiftsMoreThanOneELement(void)
+TEST(list_ShiftElements_CorrectlyShiftsMoreThanOneElement)
 {
 #define LIST_SIZE 4
 
@@ -75,7 +75,7 @@ void test_List_ShiftElements_CorrectlyShiftsMoreThanOneELement(void)
     _rg_List_ShiftElements(list, START_INDEX, LENGTH, SHIFT_OFFSET);
 
     for (int i = 0; i < LIST_SIZE - 1; ++i) {
-        TEST_ASSERT_EQUAL_INT(
+        ASSERT_EQUAL_INT(
                 values[i],
                 *(int*)rg_List_Get(list, i + 1)
         );
@@ -90,41 +90,37 @@ void test_List_ShiftElements_CorrectlyShiftsMoreThanOneELement(void)
 #undef LIST_SIZE
 }
 
-void test_List_Resize_SetsSizeToOneIfItIsZero(void)
+TEST(list_Resize_SetsSizeToOneIfItIsZero)
 {
     struct rg_List *list = rg_List_Create(sizeof(int), 1);
     list->_num_allocated_elements = 0;
 
     _rg_List_Resize(list);
 
-    TEST_ASSERT_EQUAL_UINT(1, list->_num_allocated_elements);
+    ASSERT_EQUAL_UINT(1, list->_num_allocated_elements);
 
     rg_List_Destroy(list);
 }
 
-void test_List_Resize_DoublesSizeIfItIsNotZero(void)
+TEST(list_Resize_DoublesSizeIfItIsNotZero)
 {
     struct rg_List *list = rg_List_Create(sizeof(int), 1);
 
     list->_num_allocated_elements = 1;
     _rg_List_Resize(list);
-    TEST_ASSERT_EQUAL_UINT(2, list->_num_allocated_elements);
+    ASSERT_EQUAL_UINT(2, list->_num_allocated_elements);
 
     list->_num_allocated_elements = 4;
     _rg_List_Resize(list);
-    TEST_ASSERT_EQUAL_UINT(8, list->_num_allocated_elements);
+    ASSERT_EQUAL_UINT(8, list->_num_allocated_elements);
 }
 
 int main(void)
 {
-    UNITY_BEGIN();
+    RUN_TEST(list_ShiftElements_CorrectlyShiftsOneElement);
+    RUN_TEST(list_ShiftElements_CorrectlyShiftsMoreThanOneElement);
+    RUN_TEST(list_Resize_DoublesSizeIfItIsNotZero);
 
-    RUN_TEST(test_List_ShiftElements_CorrectlyShiftsOneElement);
-    RUN_TEST(test_List_ShiftElements_CorrectlyShiftsMoreThanOneELement);
-
-    RUN_TEST(test_List_Resize_SetsSizeToOneIfItIsZero);
-    RUN_TEST(test_List_Resize_DoublesSizeIfItIsNotZero);
-
-    return UNITY_END();
+    return TEST_STATUS();
 }
 

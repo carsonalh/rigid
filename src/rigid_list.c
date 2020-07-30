@@ -32,7 +32,7 @@ struct rg_List *rg_List_Create(size_t bytes_per_element, size_t initial_length)
     return list;
 }
 
-void *rg_List_Get(struct rg_List *list, unsigned index)
+void *rg_List_Get(const struct rg_List *list, unsigned index)
 {
     if (index >= list->_list_length) {
         return NULL;
@@ -42,7 +42,7 @@ void *rg_List_Get(struct rg_List *list, unsigned index)
     return &list->_data[index * bytes_per_element];
 }
 
-size_t rg_List_GetSize(struct rg_List *list)
+size_t rg_List_GetSize(const struct rg_List *list)
 {
     return list->_list_length;
 }

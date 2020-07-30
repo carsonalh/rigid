@@ -9,6 +9,7 @@ set (${PROJECT_NAME}_SOURCES
         "src/rigid_list.c"
         "src/rigid_list_internal.c"
         "src/rigid_list_internal.h"
+        "src/rigid_sort.c"
 )
 
 add_library (${PROJECT_NAME} STATIC ${${PROJECT_NAME}_SOURCES})
@@ -18,12 +19,11 @@ target_include_directories (${PROJECT_NAME}
 
 set (${PROJECT_NAME}_C_FLAGS
         ${${PROJECT_NAME}_C_FLAGS}
-        $<$<C_COMPILER_ID:MSVC>:/Werror>
-        $<$<OR:
-            $<C_COMPILER_ID:GNU>,
-            $<C_COMPILER_ID:Clang>,
-            $<C_COMPILER_ID:MinGW>>:-Werror
-                                    -Wall>
+            $<$<C_COMPILER_ID:MSVC>:/Wall>
+            $<$<OR:
+                $<C_COMPILER_ID:GNU>,
+                $<C_COMPILER_ID:Clang>,
+                $<C_COMPILER_ID:MinGW>>:-pedantic-errors -Werror -Wall>
 )
 
 # If the CMAKE_BUILD_TYPE variable is set, use that value; otherwise use
@@ -35,22 +35,19 @@ if (${PROJECT_NAME}_BUILD_TYPE STREQUAL Debug)
     set (${PROJECT_NAME}_C_FLAGS
             ${${PROJECT_NAME}_C_FLAGS}
             $<$<C_COMPILER_ID:MSVC>:/DEBUG>
-            $<$<OR:
-                $<C_COMPILER_ID:GNU>,
-                $<C_COMPILER_ID:Clang>,
-                $<C_COMPILER_ID:MinGW>>:-g>
+            $<$<OR:$<C_COMPILER_ID:GNU>,$<C_COMPILER_ID:Clang>,$<C_COMPILER_ID:MinGW>>:-g>
     )
 endif ()
 
 enable_testing ()
 
-add_subdirectory ("extern/Unity")
+add_subdirectory ("extern/pest")
 
 add_executable (${PROJECT_NAME}_list_test "tests/list_test.c")
 target_link_libraries (${PROJECT_NAME}_list_test
         PRIVATE
             ${PROJECT_NAME}
-            "unity"
+            "pest"
 )
 add_test (list_test ${PROJECT_NAME}_list_test)
 
@@ -58,7 +55,15 @@ add_executable (${PROJECT_NAME}_list_internal_test "tests/list_internal_test.c")
 target_link_libraries (${PROJECT_NAME}_list_internal_test
         PRIVATE
             ${PROJECT_NAME}
-            "unity"
+            "pest"
 )
 add_test (list_internal_test ${PROJECT_NAME}_list_internal_test)
+
+add_executable (${PROJECT_NAME}_sort_test "tests/sort_test.c")
+target_link_libraries (${PROJECT_NAME}_sort_test
+        PRIVATE
+            ${PROJECT_NAME}
+            "pest"
+)
+add_test (sort_test ${PROJECT_NAME}_sort_test)
 

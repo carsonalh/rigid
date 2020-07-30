@@ -12,14 +12,29 @@ struct rg_List {
     uint8_t *_data;
 };
 
-struct rg_List *rg_List_Create(size_t bytes_per_element, size_t initial_length);
-void           *rg_List_Get(struct rg_List *list, unsigned index);
-size_t          rg_List_GetSize(struct rg_List *list);
+struct rg_List *rg_List_Create(size_t bytes_per_element,
+                               size_t initial_length);
+void           *rg_List_Get(const struct rg_List * list, unsigned index);
+size_t          rg_List_GetSize(const struct rg_List *list);
 void            rg_List_Insert(struct rg_List *list, unsigned index,
                                void *data);
 bool            rg_List_Delete(struct rg_List *list, unsigned index);
 void            rg_List_Clear(struct rg_List *list);
 void            rg_List_Destroy(struct rg_List *list);
+
+/* Function which returns a value greater than zero if the right input is
+ * greater than the left; zero if they are equivalent; and a number less than
+ * zero if the right is less than that of the left. */
+typedef int (*rg_CompareFunction)(void *l, void *r);
+
+void rg_BubbleSort(void *array, size_t element_count, size_t element_size,
+                   rg_CompareFunction compare_function);
+void rg_SelectionSort(void *array, size_t element_count, size_t element_size,
+                      rg_CompareFunction compare_function);
+void rg_InsertionSort(void *array, size_t element_count, size_t element_size,
+                      rg_CompareFunction compare_function);
+void rg_QuickSort(void *array, size_t element_count, size_t element_size,
+                  rg_CompareFunction compare_function);
 
 #endif /* RIGID_H */
 
