@@ -33,7 +33,7 @@ TEST(doesNotModifyEmptyArray, SortFunction sort)
 
     const size_t purported_array_size = 0;
     sort(array, purported_array_size, sizeof *array,
-            &compareIntAscending);
+            (rg_CompareFunction)&compareIntAscending);
 
     ASSERT_EQUAL_MEMORY(array, array_copy, ARRAY_SIZE * sizeof array[0]);
 
@@ -49,7 +49,7 @@ TEST(swapsUnsortedArrayOfSizeTwo, SortFunction sort)
         int expected_array_after[ARRAY_SIZE] = { 0, 1 };
 
         sort(array, ARRAY_SIZE, sizeof *array,
-                (SortFunction)&compareIntAscending);
+                (rg_CompareFunction)&compareIntAscending);
 
         ASSERT_EQUAL_MEMORY(expected_array_after, array,
                 ARRAY_SIZE * sizeof array[0]);
@@ -60,7 +60,7 @@ TEST(swapsUnsortedArrayOfSizeTwo, SortFunction sort)
         int8_t expected_array_after[ARRAY_SIZE] = { 0, 1 };
 
         sort(array, ARRAY_SIZE, sizeof *array,
-                (SortFunction)&compareCharAscending);
+                (rg_CompareFunction)&compareCharAscending);
 
         ASSERT_EQUAL_MEMORY(expected_array_after, array,
                 ARRAY_SIZE * sizeof array[0]);
@@ -77,7 +77,7 @@ TEST(doesNotModifySortedNonEmptyArray, SortFunction sort)
     int expected_array_after[ARRAY_SIZE] = { 1, 2, 3, 4 };
 
     sort(values, ARRAY_SIZE, sizeof *values,
-            (SortFunction)&compareIntAscending);
+            (rg_CompareFunction)&compareIntAscending);
 
     ASSERT_EQUAL_MEMORY(expected_array_after, values,
             ARRAY_SIZE * sizeof values[0]);
@@ -106,7 +106,7 @@ TEST(correctlySwapsUnsortedArrayOfCustomStructs, SortFunction sort)
     struct CustomStruct expected_data[ARRAY_SIZE] = { data[1], data[0] };
 
     sort(data, ARRAY_SIZE, sizeof data[0],
-            (SortFunction)&CustomStruct_Compare);
+            (rg_CompareFunction)&CustomStruct_Compare);
 
     ASSERT_EQUAL_MEMORY(data, expected_data, ARRAY_SIZE * sizeof data[0]);
 
@@ -121,7 +121,7 @@ TEST(correctlySortsCompleteArrayOfIntegers, SortFunction sort)
     int expected_array[ARRAY_SIZE] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 
     sort(array, ARRAY_SIZE, sizeof array[0],
-            (SortFunction)&compareIntAscending);
+            (rg_CompareFunction)&compareIntAscending);
 
     ASSERT_EQUAL_MEMORY(array, expected_array, ARRAY_SIZE * sizeof array[0]);
 

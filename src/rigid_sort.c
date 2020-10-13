@@ -6,9 +6,13 @@
  * functionality into a lbirary of its own at some point. */
 #ifdef _WIN32
 #   include <malloc.h>
-#   define alloca(_size) _alloca(_size)
-#else
+#   ifndef alloca
+#       define alloca(_size) _alloca(_size)
+#   endif
+#elif defined(unix) || defined(__unix__) || defined(__unix)
 #   include <alloca.h>
+#else
+#   error "Platform does not have an alloca header!"
 #endif
 
 static void _rg_Swap(void *first, void *second, size_t size)
@@ -23,7 +27,7 @@ void rg_BubbleSort(void *array, size_t element_count, size_t element_size,
                    rg_CompareFunction compare_function)
 {
     for (int i = element_count - 1; i >= 0; --i) {
-        for (int j = 0; j <= i; ++j) {
+        for (int j = 0; j < i; ++j) {
             /* Note that j will ALWAYS be less than i... */
             void *ith_element = (int8_t *)array + i * element_size;
             void *jth_element = (int8_t *)array + j * element_size;
@@ -31,7 +35,7 @@ void rg_BubbleSort(void *array, size_t element_count, size_t element_size,
             bool latter_is_smaller = \
                     compare_function(jth_element, ith_element) < 0;
 
-            if (latter_is_smaller && j != i) {
+            if (latter_is_smaller) {
                 _rg_Swap(ith_element, jth_element, element_size);
             }
         }
@@ -162,8 +166,8 @@ void rg_QuickSort(void *array, size_t element_count, size_t element_size,
     }
 
     int partition_index = \
-        _rg_LomutoPartition(array, element_count, element_size,
-                compare_function);
+            _rg_LomutoPartition(array, element_count, element_size,
+                    compare_function);
 
     void *array_first_half = array;
     void *array_second_half = \

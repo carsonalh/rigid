@@ -3,12 +3,12 @@
 #include <string.h>
 
 void _rg_List_ShiftElements(struct rg_List *list,
-                                 unsigned index, unsigned length,
+                                 unsigned index, size_t length,
                                  int shift_offset)
 {
     unsigned start_byte = index * list->_bytes_per_element;
     unsigned offset_in_bytes = shift_offset * list->_bytes_per_element;
-    unsigned length_in_bytes = length * list->_bytes_per_element;
+    size_t length_in_bytes = length * list->_bytes_per_element;
 
     /* Note that data is indexed per byte (it is an int8_t). */
 
@@ -26,8 +26,7 @@ bool _rg_List_Resize(struct rg_List *list)
     }
 
     size_t new_num_bytes = \
-            list->_num_allocated_elements
-            * list->_bytes_per_element;
+            list->_num_allocated_elements * list->_bytes_per_element;
 
     list->_data = realloc(list->_data, new_num_bytes);
 
