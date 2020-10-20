@@ -30,6 +30,21 @@ bool            rg_List_DeleteStart(struct rg_List *list);
 bool            rg_List_DeleteEnd(struct rg_List *list);
 void            rg_List_Clear(struct rg_List *list);
 
+struct rg_Stack {
+    struct rg_List _list;
+};
+
+inline void             _rg_Stack_Init(struct rg_Stack *stack,
+                                       size_t bytes_per_element,
+                                       size_t initial_length);
+inline void             _rg_Stack_Uninit(struct rg_Stack *stack);
+inline struct rg_Stack *rg_Stack_Create(size_t bytes_per_element,
+                                        size_t initial_length);
+inline void             rg_Stack_Destroy(struct rg_Stack *stack);
+inline void             rg_Stack_Push(struct rg_Stack *stack, void *item);
+inline void             rg_Stack_Pop(struct rg_Stack *stack);
+inline void            *rg_Stack_Peek(struct rg_Stack *stack);
+
 /* Function which returns a value greater than zero if the right input is
  * greater than the left; zero if they are equivalent; and a number less than
  * zero if the right is less than that of the left. */
