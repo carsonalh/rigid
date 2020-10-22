@@ -5,45 +5,45 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-struct rg_List {
+typedef struct rg_List {
     size_t  _bytes_per_element;
     size_t  _list_length;
     size_t  _num_allocated_elements;
     uint8_t *_data;
-};
+} rg_List;
 
-void            _rg_List_Init(struct rg_List *list, size_t bytes_per_element,
+void            _rg_List_Init(rg_List *list, size_t bytes_per_element,
                               size_t initial_length);
-void            _rg_List_Uninit(struct rg_List *list);
+void            _rg_List_Uninit(rg_List *list);
 
-struct rg_List *rg_List_Create(size_t bytes_per_element,
+rg_List        *rg_List_Create(size_t bytes_per_element,
                                size_t initial_length);
-void            rg_List_Destroy(struct rg_List *list);
-void           *rg_List_Get(const struct rg_List *list, unsigned index);
-size_t          rg_List_GetSize(const struct rg_List *list);
-void            rg_List_Insert(struct rg_List *list, unsigned index,
+void            rg_List_Destroy(rg_List *list);
+void           *rg_List_Get(const rg_List *list, unsigned index);
+size_t          rg_List_GetSize(const rg_List *list);
+void            rg_List_Insert(rg_List *list, unsigned index,
                                const void *data);
-void            rg_List_InsertStart(struct rg_List *list, const void *data);
-void            rg_List_InsertEnd(struct rg_List *list, const void *data);
-bool            rg_List_Delete(struct rg_List *list, unsigned index);
-bool            rg_List_DeleteStart(struct rg_List *list);
-bool            rg_List_DeleteEnd(struct rg_List *list);
-void            rg_List_Clear(struct rg_List *list);
+void            rg_List_InsertStart(rg_List *list, const void *data);
+void            rg_List_InsertEnd(rg_List *list, const void *data);
+bool            rg_List_Delete(rg_List *list, unsigned index);
+bool            rg_List_DeleteStart(rg_List *list);
+bool            rg_List_DeleteEnd(rg_List *list);
+void            rg_List_Clear(rg_List *list);
 
-struct rg_Stack {
+typedef struct rg_Stack {
     struct rg_List _list;
-};
+} rg_Stack;
 
-inline void             _rg_Stack_Init(struct rg_Stack *stack,
+inline void             _rg_Stack_Init(rg_Stack *stack,
                                        size_t bytes_per_element,
                                        size_t initial_length);
-inline void             _rg_Stack_Uninit(struct rg_Stack *stack);
-inline struct rg_Stack *rg_Stack_Create(size_t bytes_per_element,
+inline void             _rg_Stack_Uninit(rg_Stack *stack);
+inline rg_Stack        *rg_Stack_Create(size_t bytes_per_element,
                                         size_t initial_length);
-inline void             rg_Stack_Destroy(struct rg_Stack *stack);
-inline void             rg_Stack_Push(struct rg_Stack *stack, void *item);
-inline void             rg_Stack_Pop(struct rg_Stack *stack);
-inline void            *rg_Stack_Peek(struct rg_Stack *stack);
+inline void             rg_Stack_Destroy(rg_Stack *stack);
+inline void             rg_Stack_Push(rg_Stack *stack, void *item);
+inline void             rg_Stack_Pop(rg_Stack *stack);
+inline void            *rg_Stack_Peek(rg_Stack *stack);
 
 /* Function which returns a value greater than zero if the right input is
  * greater than the left; zero if they are equivalent; and a number less than

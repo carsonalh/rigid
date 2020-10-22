@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 3.8)
-project (rigid VERSION 0.1.1 LANGUAGES C)
+project (rigid VERSION 0.1.2 LANGUAGES C)
 
 set (${PROJECT_NAME}_C_STANDARD 99)
 set (${PROJECT_NAME}_C_STANDARD_REQUIRED TRUE)
